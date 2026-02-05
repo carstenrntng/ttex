@@ -1,3 +1,178 @@
+# Workshop: Transport Tycoon - Elixir Edition
+
+## Project Intent
+
+**City Transit Simulation Workshop**: A concurrent Elixir system where every bus (~50) and citizen (~5,000) is an independent OTP process. Citizens walk to stops, wait, board, ride, and transfer—all coordinated via message passing. Real-time visualization via Phoenix LiveView.
+
+**Core OTP patterns**:
+
+- Each entity (bus, citizen, stop) = GenServer process
+- `Registry` for process lookup by entity ID
+- `DynamicSupervisor` for spawning/terminating entities at runtime
+- `Phoenix.PubSub` for real-time UI updates (entity position changes)
+- LiveView streams for rendering thousands of moving entities efficiently
+
+**Chaos scenarios**: Route cancellation, bus breakdowns, rush-hour surges.
+
+---
+
+## Preferred Tools
+
+**Use built-in tools instead of bash commands:**
+
+| Task | Use This | NOT This |
+|------|----------|----------|
+| **File search** | `Glob` tool | `find`, `ls` |
+| **Content search** | `Grep` tool | `grep`, `rg` |
+| **Read files** | `Read` tool | `cat`, `head`, `tail` |
+| **Edit files** | `Edit` tool | `sed`, `awk` |
+| **Write files** | `Write` tool | `echo >`, `cat <<EOF` |
+
+Built-in tools are faster, safer, and provide better error handling.
+
+---
+
+## Context7 Documentation
+
+When you need authoritative docs, use these library IDs with `context7_query-docs`:
+
+| Library | ID | Use for |
+|---------|-----|---------|
+| **Elixir stdlib** | `/websites/hexdocs_pm_elixir_1_19_3` | GenServer, Registry, DynamicSupervisor, Process, Task |
+| **Phoenix 1.8** | `/phoenixframework/phoenix/v1_8_0` | Router, channels, PubSub, endpoints |
+| **LiveView** | `/phoenixframework/phoenix_live_view` | Streams, hooks, async assigns, real-time UI |
+
+---
+
+## Dev Environment
+
+**Key commands**:
+
+- `mix setup` — install deps, create DB, build assets
+- `mix phx.server` — start dev server at localhost:4000
+- `iex -S mix phx.server` — start with IEx for debugging
+- `mix precommit` — **run before committing** (compile warnings-as-errors, format, test)
+
+**Code generation**:
+
+- `mix phx.gen.live Context Schema table field:type` — generate LiveView CRUD
+- `mix ecto.gen.migration name` — generate migration (use underscores)
+
+---
+
+## Testing
+
+**Commands**:
+
+- `mix test` — run all tests
+- `mix test path/to/test.exs` — run specific file
+- `mix test --failed` — re-run only failed tests
+- `mix test path/to/test.exs:42` — run specific line
+
+**Agent TDD workflow**:
+
+1. Write failing test first
+2. Implement minimum code to pass
+3. Run `mix test path/to/test.exs` — confirm pass
+4. Refactor if needed, re-run test
+
+**Process testing** (for GenServer/Registry work):
+
+- Use `start_supervised!/1` to start processes (guarantees cleanup)
+- Use `Process.monitor/1` + `assert_receive {:DOWN, ...}` instead of `Process.sleep`
+- Use `:sys.get_state/1` to synchronize before assertions
+
+---
+
+## Gotchas
+
+**Elixir-specific**:
+
+- Lists don't support `list[index]` — use `Enum.at(list, index)`
+- Variables are immutable but can be rebound — `if` blocks must return/rebind: `socket = if ... do ... end`
+- Don't nest multiple modules in one file — causes cyclic deps
+- Don't use `changeset[:field]` — use `Ecto.Changeset.get_field(changeset, :field)`
+- Don't use `String.to_atom/1` on user input — memory leak risk
+
+**OTP-specific** (for this project):
+
+- Registry/DynamicSupervisor require names in child_spec: `{DynamicSupervisor, name: Ttex.BusSupervisor}`
+- Use `via_tuple` for Registry lookups: `{:via, Registry, {Ttex.Registry, bus_id}}`
+
+**LiveView-specific**:
+
+- Use streams for large collections (buses, citizens): `stream(socket, :buses, buses)`
+- Streams are NOT enumerable — can't use `Enum.filter(@streams.buses)`
+- Always use `phx-update="stream"` on parent element with DOM id
+
+---
+
+## Debugging LiveViews
+
+**Server-side (IEx/terminal)**:
+
+- `IO.inspect(socket.assigns, label: "assigns")` — log assigns in handle_* callbacks
+- `dbg(socket.assigns)` — Elixir 1.14+ interactive debugger
+- In `handle_event`: `IO.inspect(params, label: "event params")`
+
+**In-template debugging**:
+
+- `<pre>{inspect(@my_assign, pretty: true)}</pre>` — render assigns visually in the page
+
+**Client-side (browser console)**:
+
+- `liveSocket.enableDebug()` — enable LiveView debug logging
+- `liveSocket.disableDebug()` — disable it
+- Requires `window.liveSocket = liveSocket` in app.js (already default in Phoenix 1.8)
+
+**LiveDebugger** (optional, powerful):
+
+- Add `{:live_debugger, "~> 0.5", only: :dev}` to deps
+- Runs at `localhost:4007` — inspect assigns, trace callbacks, view component tree
+- Chrome/Firefox extension available for overlay mode
+
+---
+
+## Debugging UI (Visual/Styling)
+
+**Use Playwright MCP** to inspect the running app. Since we don't have a vision model, use structured DOM tools instead of screenshots:
+
+```elixir
+# Navigate to page
+skill_mcp(mcp_name="playwright", tool_name="browser_navigate", arguments={"url": "http://localhost:4000"})
+
+# Get accessibility snapshot — BEST for AI understanding (structured tree of all elements)
+skill_mcp(mcp_name="playwright", tool_name="browser_snapshot", arguments={})
+
+# Check console for JS errors
+skill_mcp(mcp_name="playwright", tool_name="browser_console_messages", arguments={})
+
+# Get page HTML source for detailed inspection
+skill_mcp(mcp_name="playwright", tool_name="browser_evaluate", arguments={"expression": "document.body.innerHTML"})
+
+# Check computed styles on specific elements
+skill_mcp(mcp_name="playwright", tool_name="browser_evaluate", arguments={"expression": "getComputedStyle(document.querySelector('.my-class')).display"})
+```
+
+**DO NOT use `browser_take_screenshot`** — no vision model available to interpret images.
+
+**Recommended tools for "seeing" the page**:
+
+- `browser_snapshot` — accessibility tree with element roles, names, values (primary tool)
+- `browser_evaluate` — run JS to inspect DOM, computed styles, element dimensions
+- `browser_console_messages` — catch JS errors affecting rendering
+
+**Workflow for UI issues**:
+
+1. Start dev server: `mix phx.server`
+2. Navigate with `browser_navigate` to the page
+3. Use `browser_snapshot` to see structured DOM state
+4. Use `browser_evaluate` to check specific styles/dimensions if needed
+5. Make CSS/template changes
+6. Repeat until snapshot shows expected structure
+
+---
+
 This is a web application written using the Phoenix web framework.
 
 ## Project guidelines
@@ -42,7 +217,6 @@ custom classes must fully style the input
 - Implement **subtle micro-interactions** (e.g., button hover effects, and smooth transitions)
 - Ensure **clean typography, spacing, and layout balance** for a refined, premium look
 - Focus on **delightful details** like hover effects, loading states, and smooth page transitions
-
 
 <!-- usage-rules-start -->
 
@@ -100,7 +274,7 @@ custom classes must fully style the input
       ref = Process.monitor(pid)
       assert_receive {:DOWN, ^ref, :process, ^pid, :normal}
 
-   - Instead of sleeping to synchronize before the next call, **always** use `_ = :sys.get_state/1` to ensure the process has handled prior messages
+  - Instead of sleeping to synchronize before the next call, **always** use `_ = :sys.get_state/1` to ensure the process has handled prior messages
 <!-- phoenix:elixir-end -->
 
 <!-- phoenix:phoenix-start -->
