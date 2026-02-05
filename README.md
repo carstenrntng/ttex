@@ -1,18 +1,19 @@
-# Ttex
+# Transport Tycoon - Elixir Edition
 
-To start your Phoenix server:
+City transit simulation: ~50 buses and ~5,000 citizens as OTP processes, visualized with Phoenix LiveView.
 
-* Run `mix setup` to install and setup dependencies
-* Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+## Setup
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+```bash
+mix setup
+mix phx.server
+```
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+Visit [`localhost:4000`](http://localhost:4000)
 
-## Learn more
+## Development
 
-* Official website: https://www.phoenixframework.org/
-* Guides: https://hexdocs.pm/phoenix/overview.html
-* Docs: https://hexdocs.pm/phoenix
-* Forum: https://elixirforum.com/c/phoenix-forum
-* Source: https://github.com/phoenixframework/phoenix
+```bash
+mix precommit  # Run before committing (format, credo, dialyzer, test)
+mix test       # Run tests
+```
