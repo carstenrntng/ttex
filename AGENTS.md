@@ -84,6 +84,46 @@ When you need authoritative docs, use these library IDs with `context7_query-doc
 
 ---
 
+## Code Quality
+
+**Mandatory before proceeding with any task:**
+
+```bash
+mix format           # Auto-fix formatting
+mix credo --strict   # Code quality (fix ALL issues)
+mix dialyzer         # Type checking (fix ALL warnings)
+mix sobelow --skip   # Security scan
+mix deps.audit       # Dependency vulnerabilities
+```
+
+**Development cycle** (run after EVERY change):
+
+1. `mix format` — auto-formats code, always run first
+2. `mix compile --warnings-as-errors` — no warnings allowed
+3. `mix credo --strict` — fix all code quality issues before continuing
+4. `mix test` — all tests must pass
+
+**Before committing** (or use `mix precommit`):
+
+- All of the above PLUS `mix dialyzer` and `mix sobelow`
+- Zero warnings, zero issues — no exceptions
+
+**First-time setup** (one-time, slow):
+
+```bash
+mix deps.get                    # Fetch new deps
+mkdir -p priv/plts              # Create PLT directory  
+mix dialyzer --plt              # Build PLT (5-10 min first time)
+```
+
+**Key rules**:
+
+- **STOP and fix** any credo/dialyzer issues before continuing work
+- Never commit code with warnings or failing checks
+- `mix precommit` runs the full quality pipeline
+
+---
+
 ## Gotchas
 
 **Elixir-specific**:

@@ -11,9 +11,13 @@ defmodule Ttex.MixProject do
       aliases: aliases(),
       deps: deps(),
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
-      listeners: [Phoenix.CodeReloader]
-    ]
-  end
+       listeners: [Phoenix.CodeReloader],
+       dialyzer: [
+         plt_file: {:no_warn, "priv/plts/project.plt"},
+         plt_add_apps: [:ex_unit, :mix]
+       ]
+     ]
+   end
 
   # Configuration for the OTP application.
   #
@@ -65,9 +69,14 @@ defmodule Ttex.MixProject do
       {:gettext, "~> 1.0"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.2.0"},
-      {:bandit, "~> 1.5"}
-    ]
-  end
+       {:bandit, "~> 1.5"},
+       # Static analysis & code quality
+       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
+       {:sobelow, "~> 0.14", only: [:dev, :test], runtime: false},
+       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false}
+     ]
+   end
 
   # Aliases are shortcuts or tasks specific to the current project.
   # For example, to install project dependencies and perform other setup tasks, run:
@@ -88,7 +97,15 @@ defmodule Ttex.MixProject do
         "esbuild ttex --minify",
         "phx.digest"
       ],
-      precommit: ["compile --warnings-as-errors", "deps.unlock --unused", "format", "test"]
-    ]
-  end
+       precommit: [
+         "compile --warnings-as-errors",
+         "format --check-formatted",
+         "credo --strict",
+         "sobelow --exit --skip",
+         "deps.audit",
+         "test"
+       ],
+       dialyzer: ["dialyzer --format dialyxir"]
+     ]
+   end
 end
