@@ -1,5 +1,6 @@
 {
   "recommendations": [
-    "expertlsp.expert"
+    "expertlsp.expert",
+    "pantajoe.vscode-elixir-credo"
   ]
 }
