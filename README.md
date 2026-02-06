@@ -2,6 +2,26 @@
 
 City transit simulation: ~50 buses and ~5,000 citizens as OTP processes, visualized with Phoenix LiveView.
 
+## Prerequisites
+
+### Required
+
+- **Elixir 1.17+** with Erlang/OTP 26+ ([installation guide](https://elixir-lang.org/install.html))
+- **SQLite** (included with most systems)
+- **Node.js 22+** (for asset compilation via esbuild/tailwind)
+
+### Optional
+
+- **OpenCode** (AI-assisted development) - [https://opencode.dev](https://opencode.dev)
+- **GitHub CLI (`gh`)** (used by OpenCode for GitHub operations)
+
+### Verify Installation
+
+```bash
+elixir --version  # Should show 1.17+ and OTP 26+
+node --version    # Should show 22+
+```
+
 ## Setup
 
 ```bash
