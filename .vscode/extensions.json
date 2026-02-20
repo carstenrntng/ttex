@@ -5,6 +5,7 @@
     "florinpatrascu.vscode-elixir-snippets",
     "pomdtr.excalidraw-editor",
     "onsever.phoenix-pulse",
-    "bradlc.vscode-tailwindcss"
+    "bradlc.vscode-tailwindcss",
+    "benvp.vscode-hex-pm-intellisense"
   ]
 }
