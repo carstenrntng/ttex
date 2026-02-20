@@ -48,6 +48,41 @@ mix precommit  # Run before committing (format, credo, dialyzer, test)
 mix test       # Run tests
 ```
 
+## Using TNG Skainet Models (Optional)
+
+This repo includes a pre-configured OpenCode profile for the TNG internal Skainet cluster.
+
+**Quick start:**
+
+```bash
+OPENCODE_CONFIG=./opencode.skainet.jsonc opencode
+```
+
+On first use, run `/connect` inside OpenCode and select the Skainet provider(s) to authenticate.
+
+**Tip:** Add a shell alias for convenience:
+
+```bash
+# Add to your ~/.bashrc, ~/.zshrc, etc.
+alias oc-tng='OPENCODE_CONFIG=./opencode.skainet.jsonc opencode'
+```
+
+This merges with your personal `~/.config/opencode/opencode.json` — your themes, keybinds, and permissions are preserved. Only the provider and model defaults are overridden.
+
+**Available models:**
+
+| Provider | Model | Notes |
+|----------|-------|-------|
+| Skainet External | GLM 5 FP8 (default) | 200K context |
+| Skainet | Qwen3 Coder 480B | Strong coding model |
+| Skainet | DeepSeek TNG R1T2 Chimera | Reasoning model |
+| Skainet | GPT OSS 120b | Reasoning effort variants |
+| Skainet | GLM 4.7 FP8 / Flash | General purpose |
+| Skainet | Qwen3 VL 235B | Vision + text |
+| Skainet | Mistral Small 3.2 24B | Lightweight, vision capable |
+
+Switch models anytime with `/models` inside OpenCode.
+
 ## Excalidraw Diagramming (Optional)
 
 AI-assisted diagramming via [Excalidraw MCP](https://github.com/yctimlin/mcp_excalidraw) (requires OpenCode + Docker).

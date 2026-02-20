@@ -1,0 +1,151 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  // TNG Skainet cluster configuration
+  // Usage: OPENCODE_CONFIG=./opencode.skainet.jsonc opencode
+  // Auth:  Run /connect inside OpenCode and select the provider to authenticate
+
+  "model": "skainet-external/zai-org/GLM-5-FP8",
+  "small_model": "skainet/zai-org/GLM-4.7-Flash",
+
+  "provider": {
+    "skainet": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Skainet",
+      "options": {
+        "baseURL": "https://chat.model.tngtech.com/v1",
+        "headers": {
+          "X-User-Agent": "OpenCode",
+          "X-Separate-Reasoning": "1"
+        }
+      },
+      "models": {
+        "tngtech/DeepSeek-TNG-R1T2-Chimera": {
+          "name": "DeepSeek TNG R1T2 Chimera",
+          "limit": {
+            "context": 163840,
+            "output": 32000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "tngtech/DeepSeek-TNG-R1T2-Chimera-guarded": {
+          "name": "DeepSeek TNG R1T2 Chimera guarded",
+          "limit": {
+            "context": 163840,
+            "output": 32000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8": {
+          "name": "Qwen3 Coder 480B A35B Instruct FP8",
+          "limit": {
+            "context": 131072,
+            "output": 32000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        },
+        "openai/gpt-oss-120b": {
+          "name": "gpt oss 120b",
+          "limit": {
+            "context": 131072,
+            "output": 32000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "variants": {
+            "low": { "reasoningEffort": "low" },
+            "medium": { "reasoningEffort": "medium" },
+            "high": { "reasoningEffort": "high" }
+          }
+        },
+        "zai-org/GLM-4.7-FP8": {
+          "name": "GLM 4.7 FP8",
+          "limit": {
+            "context": 131072,
+            "output": 32000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "variants": {
+            "none": { "reasoningEffort": "none" },
+            "medium": { "reasoningEffort": "medium" }
+          }
+        },
+        "zai-org/GLM-4.7-Flash": {
+          "name": "GLM 4.7 Flash",
+          "limit": {
+            "context": 202752,
+            "output": 32000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "variants": {
+            "none": { "reasoningEffort": "none" },
+            "medium": { "reasoningEffort": "medium" }
+          }
+        },
+        "mistralai/Mistral-Small-3.2-24B-Instruct-2506": {
+          "name": "Mistral Small 3.2 24B Instruct 2506",
+          "limit": {
+            "context": 30001,
+            "output": 15000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "Qwen/Qwen3-VL-235B-A22B-Instruct-FP8": {
+          "name": "Qwen3 VL 235B A22B Instruct FP8",
+          "limit": {
+            "context": 131072,
+            "output": 32000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        }
+      }
+    },
+
+    "skainet-external": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Skainet External",
+      "options": {
+        "baseURL": "https://external.model.tngtech.com/v1",
+        "headers": {
+          "X-User-Agent": "OpenCode",
+          "X-Separate-Reasoning": "1"
+        }
+      },
+      "models": {
+        "zai-org/GLM-5-FP8": {
+          "name": "GLM 5 FP8",
+          "limit": {
+            "context": 202752,
+            "output": 32000
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        }
+      }
+    }
+  }
+}
