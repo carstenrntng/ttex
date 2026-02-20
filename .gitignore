@@ -46,3 +46,7 @@ npm-debug.log
 .vscode/.phoenix-pulse-cache.json
 
 excalidraw.log
+
+# vscode helper folders for some plugins
+.lh
+.expert
