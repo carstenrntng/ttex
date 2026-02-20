@@ -29,7 +29,7 @@ This reads `.tool-versions` and installs Erlang 28.3.1 and Elixir 1.19.5-otp-28.
 
 ```bash
 elixir --version  # Should show 1.19+ and OTP 28+
-node --version    # Should show 22+
+node --version    # Should show 24+
 ```
 
 ## Setup
@@ -39,7 +39,7 @@ mix setup
 iex -S mix phx.server
 ```
 
-Visit [`localhost:4000`](http://localhost:4000)
+Visit [`http://localhost:4000/starter-sim`](http://localhost:4000/starter-sim)
 
 ## Development
 
@@ -71,15 +71,15 @@ This merges with your personal `~/.config/opencode/opencode.json` — your theme
 
 **Available models:**
 
-| Provider | Model | Notes |
-|----------|-------|-------|
-| Skainet External | GLM 5 FP8 (default) | 200K context |
-| Skainet | Qwen3 Coder 480B | Strong coding model |
-| Skainet | DeepSeek TNG R1T2 Chimera | Reasoning model |
-| Skainet | GPT OSS 120b | Reasoning effort variants |
-| Skainet | GLM 4.7 FP8 / Flash | General purpose |
-| Skainet | Qwen3 VL 235B | Vision + text |
-| Skainet | Mistral Small 3.2 24B | Lightweight, vision capable |
+| Provider         | Model                     | Notes                       |
+| ---------------- | ------------------------- | --------------------------- |
+| Skainet External | GLM 5 FP8 (default)       | 200K context                |
+| Skainet          | Qwen3 Coder 480B          | Strong coding model         |
+| Skainet          | DeepSeek TNG R1T2 Chimera | Reasoning model             |
+| Skainet          | GPT OSS 120b              | Reasoning effort variants   |
+| Skainet          | GLM 4.7 FP8 / Flash       | General purpose             |
+| Skainet          | Qwen3 VL 235B             | Vision + text               |
+| Skainet          | Mistral Small 3.2 24B     | Lightweight, vision capable |
 
 Switch models anytime with `/models` inside OpenCode.
 
