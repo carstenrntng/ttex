@@ -6,7 +6,7 @@ City transit simulation: ~50 buses and ~5,000 citizens as OTP processes, visuali
 
 ### Required
 
-- **Elixir 1.17+** with Erlang/OTP 26+ ([installation guide](https://elixir-lang.org/install.html))
+- **Elixir 1.19+** with Erlang/OTP 28+ ([installation guide](https://elixir-lang.org/install.html))
 - **SQLite** (included with most systems)
 - **Node.js 22+** (for asset compilation via esbuild/tailwind)
 
@@ -18,7 +18,7 @@ City transit simulation: ~50 buses and ~5,000 citizens as OTP processes, visuali
 ### Verify Installation
 
 ```bash
-elixir --version  # Should show 1.17+ and OTP 26+
+elixir --version  # Should show 1.19+ and OTP 28+
 node --version    # Should show 22+
 ```
 
