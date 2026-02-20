@@ -37,3 +37,19 @@ Visit [`localhost:4000`](http://localhost:4000)
 mix precommit  # Run before committing (format, credo, dialyzer, test)
 mix test       # Run tests
 ```
+
+## Excalidraw Diagramming (Optional)
+
+AI-assisted diagramming via [Excalidraw MCP](https://github.com/yctimlin/mcp_excalidraw) (requires OpenCode + Docker).
+
+**Quick start:**
+
+```bash
+mix excalidraw.start  # Starts canvas at localhost:3000
+```
+
+Ask OpenCode to create diagrams (e.g., "Draw the OTP supervision tree"). Diagrams appear in real-time in your browser. Exported diagrams (`.excalidraw`, PNG) are saved to the repo root.
+
+```bash
+mix excalidraw.stop  # Stop canvas when done
+```

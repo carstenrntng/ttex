@@ -44,3 +44,5 @@ npm-debug.log
 
 # VSCode extension: Phoenix Pulse
 .vscode/.phoenix-pulse-cache.json
+
+excalidraw.log

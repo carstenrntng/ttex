@@ -105,7 +105,11 @@ defmodule Ttex.MixProject do
         "deps.audit",
         "test"
       ],
-      dialyzer: ["dialyzer --format dialyxir"]
+      dialyzer: ["dialyzer --format dialyxir"],
+      "excalidraw.start": [
+        "cmd docker run -d --name mcp-excalidraw-canvas -p 3000:3000 ghcr.io/yctimlin/mcp_excalidraw-canvas:latest"
+      ],
+      "excalidraw.stop": ["cmd docker rm -f mcp-excalidraw-canvas"]
     ]
   end
 end
