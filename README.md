@@ -10,6 +10,16 @@ City transit simulation: ~50 buses and ~5,000 citizens as OTP processes, visuali
 - **SQLite** (included with most systems)
 - **Node.js 22+** (for asset compilation via esbuild/tailwind)
 
+### Using asdf (Recommended)
+
+If you use [asdf](https://asdf-vm.com/), run this in the repo root to install the correct versions:
+
+```bash
+asdf install
+```
+
+This reads `.tool-versions` and installs Erlang 28.3.1 and Elixir 1.19.5-otp-28.
+
 ### Optional
 
 - **OpenCode** (AI-assisted development) - [https://opencode.dev](https://opencode.dev)
