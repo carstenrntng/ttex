@@ -39,4 +39,8 @@ npm-debug.log
 *.db
 *.db-*
 
+# OpenCode
 .sisyphus
+
+# VSCode extension: Phoenix Pulse
+.vscode/.phoenix-pulse-cache.json

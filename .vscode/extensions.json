@@ -1,6 +1,10 @@
 {
   "recommendations": [
     "expertlsp.expert",
-    "pantajoe.vscode-elixir-credo"
+    "pantajoe.vscode-elixir-credo",
+    "florinpatrascu.vscode-elixir-snippets",
+    "pomdtr.excalidraw-editor",
+    "onsever.phoenix-pulse",
+    "bradlc.vscode-tailwindcss"
   ]
 }

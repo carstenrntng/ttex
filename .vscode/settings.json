@@ -1,0 +1,17 @@
+{
+  // Disable word-based suggestions to prevent pollution
+  "editor.wordBasedSuggestions": "off",
+  // Allow snippets in quick suggestions
+  "editor.suggest.snippetsPreventQuickSuggestions": false,
+  // Instant completions (no delay)
+  "editor.quickSuggestionsDelay": 0,
+  // Better completion ordering
+  "editor.suggest.localityBonus": true,
+  // Exclude build directories from search
+  "search.exclude": {
+    "**/.elixir_ls": true,
+    "**/.lexical": true,
+    "**/deps": true,
+    "**/_build": true
+  }
+}
