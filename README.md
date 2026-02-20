@@ -36,7 +36,7 @@ node --version    # Should show 22+
 
 ```bash
 mix setup
-mix phx.server
+iex -S mix phx.server
 ```
 
 Visit [`localhost:4000`](http://localhost:4000)
