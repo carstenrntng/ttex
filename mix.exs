@@ -110,9 +110,10 @@ defmodule Ttex.MixProject do
       ],
       dialyzer: ["dialyzer --format dialyxir"],
       "excalidraw.start": [
-        "cmd docker run -d --name mcp-excalidraw-canvas -p 3000:3000 ghcr.io/yctimlin/mcp_excalidraw-canvas:latest"
+        "cmd sh -c 'docker run -d --name mcp-excalidraw-canvas -p 3000:3000 -v \"$(pwd):/app/workspace\" -e EXCALIDRAW_EXPORT_DIR=/app/workspace ghcr.io/yctimlin/mcp_excalidraw-canvas:latest'"
       ],
-      "excalidraw.stop": ["cmd docker rm -f mcp-excalidraw-canvas"]
+      "excalidraw.stop": ["cmd docker rm -f mcp-excalidraw-canvas"],
+      "excalidraw.restart": ["excalidraw.stop", "excalidraw.start"]
     ]
   end
 end
