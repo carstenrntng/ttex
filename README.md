@@ -98,3 +98,97 @@ Ask OpenCode to create diagrams (e.g., "Draw the OTP supervision tree"). Diagram
 ```bash
 mix excalidraw.stop  # Stop canvas when done
 ```
+
+## Tidewave MCP: Your Phoenix Development Superpower (Optional)
+
+[Tidewave MCP](https://github.com/tidewave-ai/tidewave_phoenix) gives you live inspection of your running Phoenix application through OpenCode. Instead of switching between terminal windows, IEx sessions, and browser tabs, just ask OpenCode natural language questions about your database, schemas, functions, and logs.
+
+### Why Use Tidewave?
+
+**Traditional debugging workflow:**
+
+```bash
+# Check database state
+sqlite3 ttex_dev.db "SELECT * FROM buses WHERE id = 42"
+
+# Test a function
+iex -S mix phx.server
+iex> Ttex.Transit.assign_citizen_to_bus(citizen_123, bus_42)
+
+# Look up docs
+# Open browser → hexdocs.pm → search → hope version matches
+
+# Check logs
+# Scroll terminal output or grep log files
+```
+
+**With Tidewave + OpenCode:**
+
+Just ask:
+
+- *"Show me bus #42 from the database"*
+- *"Run `Ttex.Transit.assign_citizen_to_bus(citizen_123, bus_42)` and show the result"*
+- *"How do I use `Ecto.Query.join/5` in this project?"* ← Gets docs for YOUR exact Ecto version
+- *"What are the recent application errors?"*
+
+OpenCode answers instantly using your running dev server.
+
+### Real Workshop Benefits
+
+**🔍 Debug GenServers without breaking flow**
+
+Instead of opening IEx and manually querying, ask OpenCode:
+> *"Is bus #42's position updating in the database?"*
+
+OpenCode runs the query, shows results, and helps diagnose issues—all in one response.
+
+**🗺️ Explore schemas instantly**
+
+> *"Which Ecto schemas have a `user_id` field?"*
+
+Get an instant list with file paths. No `grep` archaeology needed.
+
+**⚡ Test functions in context**
+
+> *"Run `Ttex.Transit.list_active_routes()` and show the results"*
+
+OpenCode executes it in your running application and shows the return value. Perfect for quick validation without writing test boilerplate.
+
+**📚 Version-matched documentation**
+
+> *"Show me the docs for `Ecto.Query.from/2` in this project"*
+
+Gets documentation for the exact Ecto version in your `mix.lock`—no version mismatches.
+
+**🪵 Instant log access**
+
+> *"Show me errors from the last 5 minutes"*
+
+OpenCode fetches buffered application logs without scrolling terminal output.
+
+### How It Works
+
+Tidewave runs a TCP server inside your Phoenix application (dev mode only). When you start the dev server with `mix phx.server`, Tidewave automatically starts on localhost:4000. OpenCode connects to it and can:
+
+- Execute SQL queries against your SQLite database
+- List and inspect Ecto schemas
+- Evaluate Elixir code in the running application (like `IEx.pry` but non-blocking)
+- Fetch documentation for your exact dependency versions
+- Read buffered application logs
+
+**Zero setup required**—it's already configured in this workshop repo.
+
+### Quick Start
+
+1. Start the dev server: `mix phx.server`
+2. Open OpenCode in a separate terminal
+3. Ask questions about your running application!
+
+Examples:
+
+- *"Show me all buses in the database"*
+- *"List all Ecto schemas with their file locations"*
+- *"Run `Ttex.Repo.aggregate(Ttex.Citizen, :count)` and show how many citizens exist"*
+- *"What does `Phoenix.PubSub.broadcast/3` do in this project's Phoenix version?"*
+
+Tidewave makes learning Phoenix and OTP faster by keeping you in flow—no more context switching between tools.

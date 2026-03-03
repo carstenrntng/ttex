@@ -39,30 +39,14 @@ Before writing code, ask yourself: *"Can I guide them to discover this themselve
 
 ### Baby Steps: Iterate in Small Increments
 
-**Break problems into smallest working units**. After each step, run tests and verify it works before proceeding.
+**Break problems into smallest working units**. After each step, run tests and verify before proceeding.
 
-**The iteration cycle**:
+1. Implement the simplest thing — get ONE piece working
+2. Run tests immediately — `mix test path/to/test.exs`
+3. Verify it works — don't move forward with broken code
+4. Then add the next piece — build on working foundations
 
-1. **Implement the simplest thing** — Get ONE piece working
-2. **Run tests immediately** — `mix test path/to/test.exs`
-3. **Verify it works** — Don't move forward with broken code
-4. **Then add the next piece** — Build on working foundations
-
-**Example progression** (implementing a GenServer):
-
-- Step 1: Basic GenServer with empty `init/1` — does it compile?
-- Step 2: Add minimal state — can you call `start_link`?
-- Step 3: Implement one `handle_call` — does it respond?
-- Step 4: Add the next callback — build incrementally
-
-**Why this matters**:
-
-- Smaller steps = easier to debug when something breaks
-- Each working state builds confidence
-- Participants see progress, not just errors
-- You can identify exactly where understanding gaps exist
-
-**What to say**: "Let's start with just getting the GenServer to compile. Once that works, we'll add state."
+Example: Basic GenServer with empty `init/1` → add state → implement one `handle_call` → add next callback
 
 ### When to Just Solve It
 
@@ -249,9 +233,56 @@ mix dialyzer --plt              # Build PLT (5-10 min first time)
 
 ---
 
+## Phoenix Runtime & Database (Tidewave MCP)
+
+**Prefer Tidewave MCP** for Phoenix/Ecto operations. Tidewave runs in your dev server (`mix phx.server`) and provides tools grounded in your running application.
+
+**When to use:**
+
+- Inspecting database state (queries, schema exploration)
+- Discovering Ecto schemas and their locations
+- Testing Elixir functions in runtime context
+- Getting docs for exact dependency versions used in the project
+- Reading application logs
+
+**Common operations:**
+
+```elixir
+# Inspect database state
+skill_mcp(mcp_name="tidewave", tool_name="execute_sql_query", arguments={"query": "SELECT * FROM buses LIMIT 5"})
+
+# Discover all Ecto schemas
+skill_mcp(mcp_name="tidewave", tool_name="get_ecto_schemas", arguments={})
+
+# Test function in runtime (safer than direct bash eval)
+skill_mcp(mcp_name="tidewave", tool_name="project_eval", arguments={"code": "Ttex.Repo.all(Ttex.Bus)"})
+
+# Get docs for specific function (exact versions)
+skill_mcp(mcp_name="tidewave", tool_name="get_docs", arguments={"module": "Ecto.Query", "function": "from"})
+
+# Find source location for a module
+skill_mcp(mcp_name="tidewave", tool_name="get_source_location", arguments={"module": "Ttex.Bus"})
+
+# Read application logs
+skill_mcp(mcp_name="tidewave", tool_name="get_logs", arguments={})
+```
+
+**Available tools:**
+
+- `execute_sql_query` — run SQL queries against the app database
+- `get_ecto_schemas` — list all Ecto schemas with file locations
+- `project_eval` — execute Elixir code in the running application context
+- `get_docs` — retrieve documentation for modules/functions (exact dependency versions)
+- `get_source_location` — find source file paths for modules/functions
+- `get_logs` — read buffered application logs
+- `get_models` — list all modules in the application
+- `search_package_docs` — search hexdocs.pm filtered to project dependencies
+
+**Tidewave auto-starts with `mix phx.server`** (configured in `endpoint.ex`, dev mode only).
+
 ## Debugging UI (Visual/Styling)
 
-**Use Playwright MCP** to inspect the running app. Since we don't have a vision model, use structured DOM tools instead of screenshots:
+**Use Playwright MCP as fallback** for UI inspection when Tidewave doesn't provide the needed capability. Since we don't have a vision model, use structured DOM tools instead of screenshots:
 
 ```elixir
 # Navigate to page
