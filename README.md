@@ -12,7 +12,15 @@ City transit simulation: ~50 buses and ~5,000 citizens as OTP processes, visuali
 
 ### Using asdf (Recommended)
 
-If you use [asdf](https://asdf-vm.com/), run this in the repo root to install the correct versions:
+If you use [asdf](https://asdf-vm.com/), first add the required plugins:
+
+```bash
+asdf plugin add erlang https://github.com/asdf-vm/asdf-erlang.git
+asdf plugin add elixir https://github.com/asdf-vm/asdf-elixir.git
+asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+```
+
+Then install the correct versions:
 
 ```bash
 asdf install
