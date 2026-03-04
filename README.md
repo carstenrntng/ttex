@@ -105,6 +105,10 @@ Ask OpenCode to create diagrams (e.g., "Draw the OTP supervision tree"). Diagram
 
 ```bash
 mix excalidraw.stop  # Stop canvas when done
+
+# Info Dump
+
+- name generation example: `UniqueNamesGenerator.generate([:names, :star_wars], %{style: :capital, separator: " "})`
 ```
 
 ## Tidewave MCP: Your Phoenix Development Superpower (Optional)
