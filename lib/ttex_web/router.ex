@@ -1,6 +1,8 @@
 defmodule TtexWeb.Router do
   use TtexWeb, :router
 
+  import Observer.Web.Router
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -39,7 +41,12 @@ defmodule TtexWeb.Router do
       pipe_through :browser
 
       live_dashboard "/dashboard", metrics: TtexWeb.Telemetry
+      observer_dashboard("/observer")
       forward "/mailbox", Plug.Swoosh.MailboxPreview
+    end
+
+    scope "/" do
+      pipe_through :browser
     end
   end
 end

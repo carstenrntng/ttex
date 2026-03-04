@@ -42,6 +42,8 @@ node --version    # Should show 24+
 
 ## Setup
 
+**INFO:** During setup Igniter will ask you whether to update router.ex and add a new Observer Dashboard path. Say YES!
+
 ```bash
 mix setup
 iex -S mix phx.server
@@ -105,10 +107,6 @@ Ask OpenCode to create diagrams (e.g., "Draw the OTP supervision tree"). Diagram
 
 ```bash
 mix excalidraw.stop  # Stop canvas when done
-
-# Info Dump
-
-- name generation example: `UniqueNamesGenerator.generate([:names, :star_wars], %{style: :capital, separator: " "})`
 ```
 
 ## Tidewave MCP: Your Phoenix Development Superpower (Optional)
@@ -180,7 +178,7 @@ OpenCode fetches buffered application logs without scrolling terminal output.
 
 ### How It Works
 
-Tidewave runs a TCP server inside your Phoenix application (dev mode only). When you start the dev server with `mix phx.server`, Tidewave automatically starts on localhost:4000. OpenCode connects to it and can:
+Tidewave runs a TCP server inside your Phoenix application (dev mode only). When you start the dev server with `iex -S mix phx.server`, Tidewave automatically starts on localhost:4000. OpenCode connects to it and can:
 
 - Execute SQL queries against your SQLite database
 - List and inspect Ecto schemas
@@ -192,7 +190,7 @@ Tidewave runs a TCP server inside your Phoenix application (dev mode only). When
 
 ### Quick Start
 
-1. Start the dev server: `mix phx.server`
+1. Start the dev server: `iex -S mix phx.server`
 2. Open OpenCode in a separate terminal
 3. Ask questions about your running application!
 
@@ -204,3 +202,9 @@ Examples:
 - *"What does `Phoenix.PubSub.broadcast/3` do in this project's Phoenix version?"*
 
 Tidewave makes learning Phoenix and OTP faster by keeping you in flow—no more context switching between tools.
+
+# Info Dump
+
+```
+- name generation example: `UniqueNamesGenerator.generate([:names, :star_wars], %{style: :capital, separator: " "})`
+```
