@@ -14,8 +14,8 @@ defmodule Ttex.Application do
        repos: Application.fetch_env!(:ttex, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:ttex, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Ttex.PubSub},
-      # Start a worker by calling: Ttex.Worker.start_link(arg)
-      # {Ttex.Worker, arg},
+      {Registry, keys: :unique, name: Ttex.ProcessRegistry},
+      Ttex.BusSupervisor,
       # Start to serve requests, typically the last entry
       TtexWeb.Endpoint
     ]
@@ -23,7 +23,12 @@ defmodule Ttex.Application do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Ttex.Supervisor]
-    Supervisor.start_link(children, opts)
+
+    with {:ok, pid} <- Supervisor.start_link(children, opts) do
+      # Spawn initial buses asynchronously (non-blocking)
+      Task.start(fn -> spawn_initial_buses() end)
+      {:ok, pid}
+    end
   end
 
   # Tell Phoenix to update the endpoint configuration
@@ -34,8 +39,29 @@ defmodule Ttex.Application do
     :ok
   end
 
-  defp skip_migrations?() do
+  defp skip_migrations? do
     # By default, sqlite migrations are run when using a release
     System.get_env("RELEASE_NAME") == nil
+  end
+
+  defp spawn_initial_buses do
+    require Logger
+
+    Enum.each(1..10, fn i ->
+      x = Enum.random(0..9)
+      y = Enum.random(0..9)
+
+      case Ttex.BusSupervisor.start_bus(id: "bus-#{i}", position: {x, y}) do
+        {:ok, _pid} ->
+          :ok
+
+        {:error, reason} ->
+          Logger.warning(
+            "Failed to start initial bus bus-#{i}: #{inspect(reason)}"
+          )
+      end
+    end)
+
+    Logger.info("Spawned #{Ttex.BusSupervisor.count_buses()} initial buses")
   end
 end
