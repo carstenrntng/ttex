@@ -2,6 +2,12 @@
 
 City transit simulation: ~50 buses and ~5,000 citizens as OTP processes, visualized with Phoenix LiveView.
 
+## Learning Resources
+
+- [GenServer Cheat Sheet][genserver-cheat-sheet] - Official Elixir GenServer reference
+- [LiveView Lifecycle Flowchart][liveview-flowchart] - Visual guide to LiveView callbacks and lifecycle
+- [Phoenix LiveView Documentation](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html) - Complete LiveView API reference
+
 ## Prerequisites
 
 ### Required
@@ -203,8 +209,9 @@ Examples:
 
 Tidewave makes learning Phoenix and OTP faster by keeping you in flow—no more context switching between tools.
 
-# Info Dump
+[genserver-cheat-sheet]: https://elixir-lang.org/downloads/cheatsheets/gen-server.pdf
+[liveview-flowchart]: https://johnelmlabs.com/posts/liveview-lifecycle-flow-chart
 
-```
-- name generation example: `UniqueNamesGenerator.generate([:names, :star_wars], %{style: :capital, separator: " "})`
-```
+## Info Dump
+
+Name generation example: `UniqueNamesGenerator.generate([:names, :star_wars], %{style: :capital, separator: " "})`
