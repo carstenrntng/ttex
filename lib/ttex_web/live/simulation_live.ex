@@ -45,6 +45,11 @@ defmodule TtexWeb.SimulationLive do
   # Called when the LiveView first connects
   @impl true
   def mount(_params, _session, socket) do
+    # Subscribe to coordinator entity updates when WebSocket connects
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(Ttex.PubSub, "simulation:entities")
+    end
+
     socket =
       socket
       # Track if demo is active
@@ -58,7 +63,11 @@ defmodule TtexWeb.SimulationLive do
   # Handle "Start Demo" button click
   @impl true
   def handle_event("start_demo", _params, socket) do
-    entities = demo_entities()
+    # Load initial entities
+    entities = Ttex.Transit.list_all_buses_as_entities()
+
+    # Start the world clock
+    Ttex.WorldClock.start_ticking()
 
     socket =
       socket
@@ -73,12 +82,27 @@ defmodule TtexWeb.SimulationLive do
   # Handle "Clear" button click
   @impl true
   def handle_event("clear", _params, socket) do
+    # Stop the world clock
+    Ttex.WorldClock.stop_ticking()
+
     socket =
       socket
       |> assign(:running, false)
       |> assign(:entities, [])
       # Clear the canvas by sending empty list
       |> push_event("entities", %{entities: []})
+
+    {:noreply, socket}
+  end
+
+  # Handle batch entity updates from SimulationCoordinator
+  @impl true
+  def handle_info({:entities_updated, entities}, socket) do
+    socket =
+      socket
+      |> assign(:entities, entities)
+      # Push updated entities to canvas
+      |> push_event("entities", %{entities: entities})
 
     {:noreply, socket}
   end
@@ -294,39 +318,6 @@ defmodule TtexWeb.SimulationLive do
       </div>
     </Layouts.app>
     """
-  end
-
-  # Demo data: Replace this with real GenServer state!
-  defp demo_entities do
-    # Entities use grid coordinates (0-9), not pixels
-    # Format: %{id: string, x: int, y: int, type: :bus | :citizen | :stop}
-    [
-      # Buses
-      %{id: "bus-1", x: 2, y: 3, type: :bus},
-      %{id: "bus-2", x: 7, y: 5, type: :bus},
-      %{id: "bus-3", x: 4, y: 8, type: :bus},
-      # Stops
-      %{id: "stop-1", x: 0, y: 0, type: :stop},
-      %{id: "stop-2", x: 9, y: 9, type: :stop},
-      # Scattered Citizens
-      %{id: "citizen-1", x: 1, y: 8, type: :citizen},
-      %{id: "citizen-2", x: 8, y: 1, type: :citizen},
-      # Crowd of 4 at (2, 2)
-      %{id: "citizen-3", x: 2, y: 2, type: :citizen},
-      %{id: "citizen-4", x: 2, y: 2, type: :citizen},
-      %{id: "citizen-5", x: 2, y: 2, type: :citizen},
-      %{id: "citizen-6", x: 2, y: 2, type: :citizen},
-      # Crowd of 2 at (5, 5)
-      %{id: "citizen-7", x: 5, y: 5, type: :citizen},
-      %{id: "citizen-8", x: 5, y: 5, type: :citizen},
-      # Crowd of 6 at (7, 7)
-      %{id: "citizen-9", x: 7, y: 7, type: :citizen},
-      %{id: "citizen-10", x: 7, y: 7, type: :citizen},
-      %{id: "citizen-11", x: 7, y: 7, type: :citizen},
-      %{id: "citizen-12", x: 7, y: 7, type: :citizen},
-      %{id: "citizen-13", x: 7, y: 7, type: :citizen},
-      %{id: "citizen-14", x: 7, y: 7, type: :citizen}
-    ]
   end
 
   # Helper for future use: Broadcast entity updates via PubSub

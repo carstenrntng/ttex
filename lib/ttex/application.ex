@@ -16,6 +16,8 @@ defmodule Ttex.Application do
       {Phoenix.PubSub, name: Ttex.PubSub},
       {Registry, keys: :unique, name: Ttex.ProcessRegistry},
       Ttex.BusSupervisor,
+      Ttex.SimulationCoordinator,
+      {Ttex.WorldClock, interval_ms: 100},
       # Start to serve requests, typically the last entry
       TtexWeb.Endpoint
     ]
@@ -56,9 +58,7 @@ defmodule Ttex.Application do
           :ok
 
         {:error, reason} ->
-          Logger.warning(
-            "Failed to start initial bus bus-#{i}: #{inspect(reason)}"
-          )
+          Logger.warning("Failed to start initial bus bus-#{i}: #{inspect(reason)}")
       end
     end)
 

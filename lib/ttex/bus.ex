@@ -11,10 +11,11 @@ defmodule Ttex.Bus do
           id: String.t(),
           position: {number(), number()},
           driver_name: String.t(),
-          bus_number: String.t()
+          bus_number: String.t(),
+          destination: {number(), number()} | nil
         }
 
-  defstruct [:id, :position, :driver_name, :bus_number]
+  defstruct [:id, :position, :driver_name, :bus_number, :destination]
 
   # Client API
 
@@ -88,7 +89,8 @@ defmodule Ttex.Bus do
       id: id,
       position: position,
       driver_name: driver_name,
-      bus_number: bus_number
+      bus_number: bus_number,
+      destination: random_destination()
     }
 
     {:ok, state}
@@ -103,5 +105,42 @@ defmodule Ttex.Bus do
   def handle_cast({:move_to, x, y}, state) do
     new_state = %{state | position: {x, y}}
     {:noreply, new_state}
+  end
+
+  # Handle tick from World Clock via Coordinator
+  @impl true
+  def handle_info({:tick, _timestamp}, state) do
+    {current_x, current_y} = state.position
+    {dest_x, dest_y} = state.destination
+
+    # If at destination, pick new random destination
+    new_state =
+      if current_x == dest_x and current_y == dest_y do
+        %{state | destination: random_destination()}
+      else
+        # Move one step toward destination (Manhattan distance)
+        new_x =
+          cond do
+            current_x < dest_x -> current_x + 1
+            current_x > dest_x -> current_x - 1
+            true -> current_x
+          end
+
+        new_y =
+          cond do
+            current_y < dest_y -> current_y + 1
+            current_y > dest_y -> current_y - 1
+            true -> current_y
+          end
+
+        %{state | position: {new_x, new_y}}
+      end
+
+    {:noreply, new_state}
+  end
+
+  # Private helper for random destination
+  defp random_destination do
+    {Enum.random(0..9), Enum.random(0..9)}
   end
 end
