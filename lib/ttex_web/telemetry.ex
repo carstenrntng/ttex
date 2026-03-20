@@ -79,7 +79,36 @@ defmodule TtexWeb.Telemetry do
       summary("vm.memory.total", unit: {:byte, :kilobyte}),
       summary("vm.total_run_queue_lengths.total"),
       summary("vm.total_run_queue_lengths.cpu"),
-      summary("vm.total_run_queue_lengths.io")
+      summary("vm.total_run_queue_lengths.io"),
+
+      # Simulation Metrics - Health (Actionable)
+      last_value("ttex.simulation.tick.health.tick_interval_ms",
+        description: "Time between ticks (target: 100ms, detects drift/jitter)"
+      ),
+      last_value("ttex.simulation.tick.health.mailbox_len",
+        description: "Coordinator mailbox depth (detects backpressure)"
+      ),
+
+      # Simulation Metrics - Performance
+      last_value("ttex.simulation.tick.health.entity_count",
+        description: "Number of entities in simulation"
+      ),
+      summary("ttex.simulation.tick.health.updates_per_window",
+        description: "Entity position updates received per tick window (100ms)",
+        unit: :unit
+      ),
+
+      # Simulation Metrics - Duration (from telemetry.span)
+      summary("ttex.simulation.tick.duration",
+        unit: {:native, :millisecond},
+        description: "Tick processing duration (alert if > 100ms)"
+      ),
+
+      # Simulation Metrics - Errors
+      counter("ttex.simulation.tick.exception.count",
+        description: "Tick processing errors",
+        tags: [:kind, :reason]
+      )
     ]
   end
 

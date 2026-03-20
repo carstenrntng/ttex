@@ -23,6 +23,7 @@ defmodule Ttex.BusSupervisor do
       iex> Ttex.BusSupervisor.start_bus(id: "bus-1", position: {5, 10})
       {:ok, #PID<0.123.0>}
   """
+  @spec start_bus(keyword()) :: DynamicSupervisor.on_start_child()
   def start_bus(opts) do
     spec = {Ttex.Bus, opts}
 
