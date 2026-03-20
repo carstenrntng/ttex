@@ -85,6 +85,9 @@ defmodule Ttex.Bus do
   def init({id, position, driver_name}) do
     bus_number = self() |> :erlang.pid_to_list() |> to_string()
 
+    # Subscribe to world clock ticks
+    Phoenix.PubSub.subscribe(Ttex.PubSub, "simulation:tick")
+
     state = %__MODULE__{
       id: id,
       position: position,
@@ -107,7 +110,7 @@ defmodule Ttex.Bus do
     {:noreply, new_state}
   end
 
-  # Handle tick from World Clock via Coordinator
+  # Handle tick from World Clock (via PubSub broadcast)
   @impl true
   def handle_info({:tick, _timestamp}, state) do
     {current_x, current_y} = state.position
@@ -136,11 +139,22 @@ defmodule Ttex.Bus do
         %{state | position: {new_x, new_y}}
       end
 
+    # Broadcast position change if moved
+    if new_state.position != state.position do
+      {x, y} = new_state.position
+
+      Phoenix.PubSub.broadcast(
+        Ttex.PubSub,
+        "simulation:position_updates",
+        {:position_changed, state.id, x, y, :bus}
+      )
+    end
+
     {:noreply, new_state}
   end
 
   # Private helper for random destination
   defp random_destination do
-    {Enum.random(0..9), Enum.random(0..9)}
+    Ttex.CityMap.random_position()
   end
 end

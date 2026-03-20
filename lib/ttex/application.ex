@@ -49,9 +49,8 @@ defmodule Ttex.Application do
   defp spawn_initial_buses do
     require Logger
 
-    Enum.each(1..10, fn i ->
-      x = Enum.random(0..9)
-      y = Enum.random(0..9)
+    Enum.each(1..50, fn i ->
+      {x, y} = Ttex.CityMap.random_position()
 
       case Ttex.BusSupervisor.start_bus(id: "bus-#{i}", position: {x, y}) do
         {:ok, _pid} ->

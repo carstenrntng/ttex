@@ -63,8 +63,8 @@ defmodule TtexWeb.SimulationLive do
   # Handle "Start Demo" button click
   @impl true
   def handle_event("start_demo", _params, socket) do
-    # Load initial entities
-    entities = Ttex.Transit.list_all_buses_as_entities()
+    # Get initial entities from coordinator (single source of truth)
+    entities = Ttex.SimulationCoordinator.get_entities()
 
     # Start the world clock
     Ttex.WorldClock.start_ticking()
@@ -111,212 +111,119 @@ defmodule TtexWeb.SimulationLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash}>
-      <div class="p-8">
-        <h1 class="text-3xl font-bold mb-4">Simulation</h1>
+    <%!-- Use custom fullwidth layout instead of Layouts.app to span viewport --%>
+    <header class="navbar px-4 sm:px-6 lg:px-8">
+      <div class="flex-1">
+        <a href="/" class="flex-1 flex w-fit items-center gap-2">
+          <img src={~p"/images/logo.svg"} width="36" />
+          <span class="text-sm font-semibold">v{Application.spec(:phoenix, :vsn)}</span>
+        </a>
+      </div>
+      <div class="flex-none">
+        <ul class="flex flex-column px-1 space-x-4 items-center">
+          <li>
+            <a href="https://phoenixframework.org/" class="btn btn-ghost">Website</a>
+          </li>
+          <li>
+            <a href="https://github.com/phoenixframework/phoenix" class="btn btn-ghost">GitHub</a>
+          </li>
+          <li>
+            <Layouts.theme_toggle />
+          </li>
+          <li>
+            <a href="https://hexdocs.pm/phoenix/overview.html" class="btn btn-primary">
+              Get Started <span aria-hidden="true">&rarr;</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </header>
 
-        <div class="mb-4">
-          <%!-- Button toggles based on @running state --%>
-          <%= if @running do %>
-            <button
-              phx-click="clear"
-              class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-            >
-              Clear
-            </button>
-          <% else %>
-            <button
-              phx-click="start_demo"
-              class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Start Demo
-            </button>
-          <% end %>
+    <main class="px-4 py-8 sm:px-6 lg:px-8">
+      <div class="mb-4">
+        <%!-- Button toggles based on @running state --%>
+        <%= if @running do %>
+          <button
+            phx-click="clear"
+            class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+          >
+            Clear
+          </button>
+        <% else %>
+          <button
+            phx-click="start_demo"
+            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Start Demo
+          </button>
+        <% end %>
+      </div>
+
+      <div class="mb-4 rounded-xl border border-base-300 bg-base-100 px-4 py-3 text-sm shadow-sm">
+        <p class="font-medium text-base-content">Canvas controls</p>
+        <p class="text-base-content/70">
+          Scroll or +/- to zoom, drag to pan, double-click or fit to reset to the full grid view.
+        </p>
+      </div>
+
+      <div class="flex flex-col lg:flex-row gap-6">
+        <%!-- Canvas spans full available width --%>
+        <div
+          id="sim-canvas-container"
+          phx-hook="SimulationCanvas"
+          phx-update="ignore"
+          class="bg-gray-50 flex-1 flex items-center justify-center"
+          data-grid-rows={Ttex.CityMap.grid_rows()}
+          data-grid-cols={Ttex.CityMap.grid_cols()}
+        >
+          <%!-- Canvas dimensions set by JavaScript to maintain square aspect ratio --%>
+          <%!-- Grid dimensions and cell size are calculated dynamically --%>
+          <canvas
+            id="sim-canvas"
+            class="block"
+          />
         </div>
 
-        <div class="flex flex-col lg:flex-row gap-6">
-          <%!-- Canvas --%>
-          <div
-            id="sim-canvas-container"
-            phx-hook=".SimCanvas"
-            phx-update="ignore"
-            class="bg-gray-50"
-          >
-            <%!-- HTML5 Canvas: 800x800 pixels, 10x10 grid (80px cells) --%>
-            <canvas
-              id="sim-canvas"
-              width="800"
-              height="800"
-              class="block"
-            />
-            <%!-- Colocated JS Hook: Renders entities on canvas --%>
-            <script :type={Phoenix.LiveView.ColocatedHook} name=".SimCanvas">
-              export default {
-                // Called when the hook attaches to the DOM
-                mounted() {
-                  this.canvas = document.getElementById("sim-canvas");
-                  this.ctx = this.canvas.getContext("2d");
-                  this.drawGrid();
-
-                  // Listen for entity updates from the server
-                  this.handleEvent("entities", data => {
-                    this.drawEntities(data.entities);
-                  });
-                },
-
-                // Draw 10x10 grid (80px cells)
-                drawGrid() {
-                  const canvas = this.canvas;
-                  const ctx = this.ctx;
-                  const CELL_SIZE = 80;
-                  const SIZE = 800;
-
-                  // Handle devicePixelRatio for crisp rendering on high-DPI displays
-                  const dpr = window.devicePixelRatio || 1;
-                  canvas.style.width = `${SIZE}px`;
-                  canvas.style.height = `${SIZE}px`;
-                  canvas.width = Math.round(SIZE * dpr);
-                  canvas.height = Math.round(SIZE * dpr);
-
-                  // Scale context to match DPR
-                  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                  ctx.clearRect(0, 0, SIZE, SIZE);
-
-                  ctx.strokeStyle = "#ccc";
-                  ctx.lineWidth = 1;
-
-                  // Draw all 11 lines (including boundaries) at half-pixel positions
-                  // for crisp 1px lines. Boundaries at 0.5 and 799.5 to avoid clipping.
-                  const boundary0 = 0.5;
-                  const boundary1 = SIZE - 0.5;
-
-                  for (let i = 0; i <= 10; i++) {
-                    const p =
-                      i === 0 ? boundary0 :
-                      i === 10 ? boundary1 :
-                      i * CELL_SIZE + 0.5;
-
-                    // Vertical line
-                    ctx.beginPath();
-                    ctx.moveTo(p, 0);
-                    ctx.lineTo(p, SIZE);
-                    ctx.stroke();
-
-                    // Horizontal line
-                    ctx.beginPath();
-                    ctx.moveTo(0, p);
-                    ctx.lineTo(SIZE, p);
-                    ctx.stroke();
-                  }
-                },
-
-              // Draw all entities on canvas
-              drawEntities(entities) {
-                const ctx = this.ctx;
-                const CELL_SIZE = 80;
-                const OFFSET = 40;  // Center entities in cells
-
-                // Clear and redraw grid
-                ctx.clearRect(0, 0, 800, 800);
-                this.drawGrid();
-
-                const citizens = entities.filter(e => e.type === "citizen");
-                const otherEntities = entities.filter(e => e.type !== "citizen");
-
-                // Aggregate citizens by position
-                const citizenCrowds = new Map();
-                citizens.forEach(c => {
-                  const key = `${c.x},${c.y}`;
-                  if (!citizenCrowds.has(key)) {
-                    citizenCrowds.set(key, { x: c.x, y: c.y, count: 0 });
-                  }
-                  citizenCrowds.get(key).count++;
-                });
-
-                // Draw buses and stops
-                otherEntities.forEach(e => {
-                  const px = e.x * CELL_SIZE + OFFSET;
-                  const py = e.y * CELL_SIZE + OFFSET;
-
-                  if (e.type === "stop") {
-                    ctx.fillStyle = "#000000";
-                    ctx.beginPath();
-                    ctx.arc(px, py, 15, 0, 2 * Math.PI);
-                    ctx.fill();
-                  } else if (e.type === "bus") {
-                    ctx.fillStyle = "#0000ff";
-                    ctx.fillRect(px - 20, py - 12.5, 40, 25);
-                  }
-                });
-
-                // Draw citizens and crowds
-                citizenCrowds.forEach(crowd => {
-                  const px = crowd.x * CELL_SIZE + OFFSET;
-                  const py = crowd.y * CELL_SIZE + OFFSET;
-
-                  if (crowd.count === 1) {
-                    // Single citizen
-                    ctx.fillStyle = "#ff8c00";
-                    ctx.beginPath();
-                    ctx.arc(px, py, 8, 0, 2 * Math.PI);
-                    ctx.fill();
-                  } else {
-                    // Crowd of citizens
-                    const radius = Math.min(8 + Math.log(crowd.count) * 2, 20);
-                    ctx.fillStyle = "#ff8c00";
-                    ctx.beginPath();
-                    ctx.arc(px, py, radius, 0, 2 * Math.PI);
-                    ctx.fill();
-
-                    // Draw count text
-                    const text = crowd.count.toString();
-                    ctx.font = "bold 14px sans-serif";
-                    ctx.textAlign = "center";
-                    ctx.textBaseline = "middle";
-
-                    // Outline for legibility
-                    ctx.strokeStyle = "#000";
-                    ctx.lineWidth = 3;
-                    ctx.strokeText(text, px, py);
-
-                    // Fill text
-                    ctx.fillStyle = "#fff";
-                    ctx.fillText(text, px, py);
-                  }
-                });
-              }
-              }
-            </script>
-          </div>
-
-          <%!-- Legend Panel --%>
-          <div class="card bg-base-200 w-full lg:w-64 shrink-0 h-fit">
-            <div class="card-body">
-              <h2 class="card-title text-lg">Legend</h2>
-              <ul class="space-y-3">
-                <li class="flex items-center gap-3">
-                  <div class="w-6 h-4 rounded-sm bg-blue-500"></div>
-                  <span>Bus</span>
-                </li>
-                <li class="flex items-center gap-3">
-                  <div class="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center">
-                    <span class="text-white text-xs font-bold">N</span>
+        <%!-- Legend Panel --%>
+        <div class="card bg-base-200 w-full lg:w-64 shrink-0 h-fit">
+          <div class="card-body">
+            <h2 class="card-title text-lg">Legend</h2>
+            <ul class="space-y-3">
+              <li class="flex items-center gap-3">
+                <div class="w-7 h-4 rounded-sm bg-blue-600 border border-blue-900 relative overflow-hidden">
+                  <div class="absolute left-1 right-1 top-0.5 h-1.5 rounded-[2px] bg-blue-100"></div>
+                  <div class="absolute left-0 right-0 bottom-0 h-1 bg-blue-900"></div>
+                </div>
+                <span>Bus</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <div class="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center">
+                  <span class="text-white text-xs font-bold">N</span>
+                </div>
+                <div>
+                  <p>Citizen / Crowd</p>
+                  <p class="text-xs text-base-content/70">(Number shown when multiple)</p>
+                </div>
+              </li>
+              <li class="flex items-center gap-3">
+                <div class="relative h-6 w-6">
+                  <div class="absolute inset-0 rounded-full bg-yellow-400">
+                    <div class="absolute inset-[1.5px] rounded-full border-[1.5px] border-lime-600">
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center text-[11px] font-black leading-none text-lime-900">
+                      H
+                    </div>
                   </div>
-                  <div>
-                    <p>Citizen / Crowd</p>
-                    <p class="text-xs text-base-content/70">(Number shown when multiple)</p>
-                  </div>
-                </li>
-                <li class="flex items-center gap-3">
-                  <div class="w-6 h-6 rounded-full bg-black"></div>
-                  <span>Stop</span>
-                </li>
-              </ul>
-            </div>
+                </div>
+                <span>Stop</span>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
-    </Layouts.app>
+    </main>
+
+    <Layouts.flash_group flash={@flash} />
     """
   end
 

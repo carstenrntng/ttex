@@ -1,9 +1,20 @@
 defmodule Ttex.WorldClock do
   @moduledoc """
-  World Clock GenServer that sends periodic tick messages to the Simulation Coordinator.
+  World Clock GenServer that drives the event-driven simulation.
 
-  The clock runs at a configurable interval (default 100ms) and sends
-  `{:tick, timestamp}` messages to drive the simulation forward.
+  The clock runs at a configurable interval (default 100ms) and performs TWO actions:
+
+  1. **Broadcasts ticks to all entities** (buses, citizens) via PubSub
+     - Each entity independently advances its state and pushes position updates
+
+  2. **Signals coordinator to flush batched updates** to LiveView
+     - Coordinator collects position changes during the tick window
+     - When signaled, it broadcasts the batch to LiveView for rendering
+
+  This two-phase approach enables:
+  - Parallel entity processing (scales to 10,000+ entities)
+  - Batched UI updates (10Hz data, 60fps rendering)
+  - No polling or querying (pure event-driven)
   """
 
   use GenServer
@@ -108,8 +119,20 @@ defmodule Ttex.WorldClock do
   def handle_info(:tick, %{running: true} = state) do
     timestamp = System.monotonic_time(:millisecond)
 
-    # Send tick to coordinator
-    send(Ttex.SimulationCoordinator, {:tick, timestamp})
+    # PHASE 1: Tell all entities to advance their simulation state
+    # Each bus/citizen receives this, moves independently, and PUSHES position updates
+    # to the coordinator. No polling/querying happens - pure event-driven.
+    Phoenix.PubSub.broadcast(
+      Ttex.PubSub,
+      "simulation:tick",
+      {:tick, timestamp}
+    )
+
+    # PHASE 2: Tell coordinator to flush the batch to LiveView
+    # By now, entities have pushed their position changes to the coordinator.
+    # This signals "time window is over, send accumulated updates to UI now".
+    # Coordinator never fetches/queries - just reads from its own cache.
+    send(Ttex.SimulationCoordinator, {:tick_window_start, timestamp})
 
     # Schedule next tick
     timer_ref = schedule_tick(state.interval_ms)

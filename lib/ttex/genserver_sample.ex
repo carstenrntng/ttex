@@ -49,7 +49,7 @@ defmodule PlaygroundEx.GenServerSample do
 
   # 4: sample for cast
   @impl true
-  def handle_cast({:move_to, new_position}, state) when is_map(new_position) do
+  def handle_cast({:move_to, new_position}, _state) when is_map(new_position) do
     Logger.info("🚌 Moving to new position: #{inspect(new_position)}")
     {:noreply, new_position}
   end
